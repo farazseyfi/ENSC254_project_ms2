@@ -4,15 +4,15 @@
 // For each test, uncomment all its macros, and disable all other macros.
 
 // required for MS1 (test_simulator_ms1.sh)
-#define DEBUG_REG_TRACE	// prints the register trace
-#define DEBUG_CYCLE	// prints cycle information
+// #define DEBUG_REG_TRACE	// prints the register trace
+// #define DEBUG_CYCLE	// prints cycle information
 //#define MEM_LATENCY 0		// before ms3, we ignore memory access latency
 
 // required for MS2 (test_simulator_ms2.sh)
 // #define DEBUG_REG_TRACE
 // #define DEBUG_CYCLE
-// #define PRINT_STATS		// prints overall stats
-// #define MEM_LATENCY 0
+#define PRINT_STATS		// prints overall stats
+#define MEM_LATENCY 0
 
 // required for MS2: vec_xprod.input (test_simulator_ms2_extended.sh)
 //#define PRINT_STATS

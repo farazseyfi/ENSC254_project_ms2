@@ -362,9 +362,54 @@ bool gen_branch(uint32_t reg_val1, uint32_t reg_val2, Instruction instruction)
 */
 void gen_forward(pipeline_regs_t* pregs_p, pipeline_wires_t* pwires_p)
 {
-  /**
-   * YOUR CODE HERE
-   */
+  // Get current instruction in EX stage
+  idex_reg_t idex_reg = pregs_p->idex_preg.out;
+  exmem_reg_t exmem_reg = pregs_p->exmem_preg.out;
+  memwb_reg_t memwb_reg = pregs_p->memwb_preg.out;
+  
+  // Initialize forwarding signals
+  pwires_p->forward_rs1_ex = false;
+  pwires_p->forward_rs2_ex = false;
+  pwires_p->forward_rs1_mem = false;
+  pwires_p->forward_rs2_mem = false;
+  
+  // Check for EX hazard (forwarding from EXMEM to EX)
+  if (exmem_reg.regWrite && exmem_reg.rd != 0) {
+    // Check if rs1 needs forwarding
+    if (idex_reg.rs1 != 0 && idex_reg.rs1 == exmem_reg.rd) {
+      printf("[FWD]: Resolving EX hazard on rs1: x%d\n", idex_reg.rs1);
+      pwires_p->forward_rs1_ex = true;
+      pwires_p->forward_rs1_data = exmem_reg.alu_result;
+      fwd_exex_counter++;
+    }
+    // Check if rs2 needs forwarding
+    if (idex_reg.rs2 != 0 && idex_reg.rs2 == exmem_reg.rd) {
+      printf("[FWD]: Resolving EX hazard on rs2: x%d\n", idex_reg.rs2);
+      pwires_p->forward_rs2_ex = true;
+      pwires_p->forward_rs2_data = exmem_reg.alu_result;
+      fwd_exex_counter++;
+    }
+  }
+  
+  // Check for MEM hazard (forwarding from MEMWB to EX)
+  if (memwb_reg.regWrite && memwb_reg.rd != 0) {
+    // Check if rs1 needs forwarding (and not already forwarded from EX)
+    if (idex_reg.rs1 != 0 && idex_reg.rs1 == memwb_reg.rd && 
+        (!exmem_reg.regWrite || exmem_reg.rd != idex_reg.rs1)) {
+      printf("[FWD]: Resolving MEM hazard on rs1: x%d\n", idex_reg.rs1);
+      pwires_p->forward_rs1_mem = true;
+      pwires_p->forward_rs1_data = memwb_reg.mem_to_reg ? memwb_reg.mem_data : memwb_reg.alu_result;
+      fwd_exmem_counter++;
+    }
+    // Check if rs2 needs forwarding (and not already forwarded from EX)
+    if (idex_reg.rs2 != 0 && idex_reg.rs2 == memwb_reg.rd && 
+        (!exmem_reg.regWrite || exmem_reg.rd != idex_reg.rs2)) {
+      printf("[FWD]: Resolving MEM hazard on rs2: x%d\n", idex_reg.rs2);
+      pwires_p->forward_rs2_mem = true;
+      pwires_p->forward_rs2_data = memwb_reg.mem_to_reg ? memwb_reg.mem_data : memwb_reg.alu_result;
+      fwd_exmem_counter++;
+    }
+  }
 }
 
 /**
@@ -375,9 +420,33 @@ void gen_forward(pipeline_regs_t* pregs_p, pipeline_wires_t* pwires_p)
 */
 void detect_hazard(pipeline_regs_t* pregs_p, pipeline_wires_t* pwires_p, regfile_t* regfile_p)
 {
-  /**
-   * YOUR CODE HERE
-   */
+  // Get current instruction in ID stage
+  idex_reg_t idex_reg = pregs_p->idex_preg.out;
+  exmem_reg_t exmem_reg = pregs_p->exmem_preg.out;
+  
+  // Initialize stall signal
+  pwires_p->stall = false;
+  
+  // Check for load-use hazard
+  // A load-use hazard occurs when:
+  // 1. Previous instruction (in EXMEM) is a load instruction
+  // 2. Current instruction (in IDEX) uses the register that the load writes to
+  if (exmem_reg.memRead && exmem_reg.regWrite && exmem_reg.rd != 0) {
+    // Check if current instruction uses the register that the load writes to
+    if ((idex_reg.rs1 != 0 && idex_reg.rs1 == exmem_reg.rd) || 
+        (idex_reg.rs2 != 0 && idex_reg.rs2 == exmem_reg.rd)) {
+      
+      // Set stall signal
+      pwires_p->stall = true;
+      
+      // Stall and re-fetch the same instruction
+      printf("[HZD]: Stalling and rewriting PC: 0x%08x\n", pregs_p->ifid_preg.out.instr_addr);
+      
+      // Don't update PC, so the same instruction will be fetched again
+      // This is handled by not updating the PC in the cycle_pipeline function
+      stall_counter++;
+    }
+  }
 }
 
 

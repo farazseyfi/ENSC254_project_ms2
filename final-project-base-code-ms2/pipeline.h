@@ -146,10 +146,17 @@ typedef struct
   bool      pcsrc; // Select the next program counter source
   uint32_t  pc_src0; // PC + 4 (default)
   uint32_t  pc_src1; // Branch or jump target address
-  /**
-   * Add other fields here
-   */
-}pipeline_wires_t;
+  
+  // Hazard detection and forwarding control signals
+  bool      stall; // True if pipeline should stall (for load-use hazard)
+  bool      flush; // True if pipeline should flush (for control hazard)
+  bool      forward_rs1_ex; // Forward rs1 from EXMEM
+  bool      forward_rs2_ex; // Forward rs2 from EXMEM
+  bool      forward_rs1_mem; // Forward rs1 from MEMWB
+  bool      forward_rs2_mem; // Forward rs2 from MEMWB
+  uint32_t  forward_rs1_data; // Data to forward for rs1
+  uint32_t  forward_rs2_data; // Data to forward for rs2
+} pipeline_wires_t;
 
 
 ///////////////////////////////////////////////////////////////////////////////
