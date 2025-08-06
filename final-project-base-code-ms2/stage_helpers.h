@@ -373,6 +373,11 @@ void gen_forward(pipeline_regs_t* pregs_p, pipeline_wires_t* pwires_p)
   pwires_p->forward_rs1_mem = false;
   pwires_p->forward_rs2_mem = false;
   
+  // Skip forwarding if current instruction is NOP
+  if (idex_reg.instr.bits == 0x00000013) {
+    return;
+  }
+  
   // Check for EX hazard (forwarding from EXMEM to EX)
   if (exmem_reg.regWrite && exmem_reg.rd != 0) {
     // Check if rs1 needs forwarding
