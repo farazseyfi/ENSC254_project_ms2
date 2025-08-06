@@ -219,7 +219,7 @@ memwb_reg_t stage_mem(exmem_reg_t exmem_reg, pipeline_wires_t* pwires_p, Byte* m
   }
   
   // Handle branch logic in MEM stage
-  if (exmem_reg.branch_taken) {
+  if (exmem_reg.branch_taken && exmem_reg.instr.bits != 0x00000013) {
     branch_counter++;
     // Set branch target address for PC update
     pwires_p->pcsrc = true;
@@ -285,7 +285,10 @@ void cycle_pipeline(regfile_t* regfile_p, Byte* memory_p, Cache* cache_p, pipeli
     pregs_p->idex_preg.inp.instr.bits = 0x00000013;
     pregs_p->exmem_preg.inp.instr.bits = 0x00000013;
     
-    printf("[CPL]: Pipeline Flushed\n");
+    // Only print flush message if this is an actual control hazard (branch/jump taken)
+    if (pregs_p->exmem_preg.out.branch_taken && pregs_p->exmem_preg.out.instr.bits != 0x00000013) {
+      printf("[CPL]: Pipeline Flushed\n");
+    }
   } else if (!pwires_p->stall) {
     // Normal PC increment - use next_pc from previous fetch
     if (pregs_p->ifid_preg.out.next_pc != 0) {

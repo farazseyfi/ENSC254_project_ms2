@@ -373,13 +373,14 @@ void gen_forward(pipeline_regs_t* pregs_p, pipeline_wires_t* pwires_p)
   pwires_p->forward_rs1_mem = false;
   pwires_p->forward_rs2_mem = false;
   
-  // Skip forwarding if current instruction is NOP
-  if (idex_reg.instr.bits == 0x00000013) {
+  // Skip forwarding if current instruction is NOP or invalid
+  if (idex_reg.instr.bits == 0x00000013 || idex_reg.instr.bits == 0) {
     return;
   }
   
   // Check for EX hazard (forwarding from EXMEM to EX) - HIGHER PRIORITY
-  if (exmem_reg.regWrite && exmem_reg.rd != 0) {
+  // Note: Cannot forward from load instructions in EXMEM stage (data not available yet)
+  if (exmem_reg.regWrite && exmem_reg.rd != 0 && exmem_reg.instr.bits != 0x00000013 && !exmem_reg.memRead) {
     // Check if rs1 needs forwarding
     if (idex_reg.rs1 != 0 && idex_reg.rs1 == exmem_reg.rd && 
         (idex_reg.instr.opcode == 0x33 || idex_reg.instr.opcode == 0x13 || 
@@ -402,7 +403,7 @@ void gen_forward(pipeline_regs_t* pregs_p, pipeline_wires_t* pwires_p)
   }
   
   // Check for MEM hazard (forwarding from MEMWB to EX) - LOWER PRIORITY, only if not already forwarded from EX
-  if (memwb_reg.regWrite && memwb_reg.rd != 0) {
+  if (memwb_reg.regWrite && memwb_reg.rd != 0 && memwb_reg.instr.bits != 0x00000013) {
     // Check if rs1 needs forwarding (and not already forwarded from EX)
     if (idex_reg.rs1 != 0 && idex_reg.rs1 == memwb_reg.rd && 
         !pwires_p->forward_rs1_ex && // Not already forwarded from EX
