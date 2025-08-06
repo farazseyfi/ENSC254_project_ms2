@@ -257,10 +257,6 @@ void cycle_pipeline(regfile_t* regfile_p, Byte* memory_p, Cache* cache_p, pipeli
   pwires_p->forward_rs1_mem = false;
   pwires_p->forward_rs2_mem = false;
   
-  // Detect hazards and generate forwarding signals BEFORE processing stages
-  detect_hazard(pregs_p, pwires_p, regfile_p);
-  gen_forward(pregs_p, pwires_p);
-  
   // Update PC based on branch decisions from previous cycle
   if (pwires_p->pcsrc) {
     regfile_p->PC = pwires_p->pc_src1;
@@ -310,6 +306,10 @@ void cycle_pipeline(regfile_t* regfile_p, Byte* memory_p, Cache* cache_p, pipeli
 
   // Writeback should use the old memwb register values (from previous cycle)
   stage_writeback (pregs_p->memwb_preg.out, pwires_p, regfile_p);
+  
+  // Detect hazards and generate forwarding signals AFTER processing stages but BEFORE updating registers
+  detect_hazard(pregs_p, pwires_p, regfile_p);
+  gen_forward(pregs_p, pwires_p);
   
   // Print debug information for current cycle after processing stages but before updating registers
   #ifdef DEBUG_CYCLE
