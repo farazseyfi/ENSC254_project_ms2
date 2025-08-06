@@ -362,10 +362,10 @@ bool gen_branch(uint32_t reg_val1, uint32_t reg_val2, Instruction instruction)
 */
 void gen_forward(pipeline_regs_t* pregs_p, pipeline_wires_t* pwires_p)
 {
-  // Get current instruction in EX stage
-  idex_reg_t idex_reg = pregs_p->idex_preg.out;
-  exmem_reg_t exmem_reg = pregs_p->exmem_preg.out;
-  memwb_reg_t memwb_reg = pregs_p->memwb_preg.out;
+  // Get current instruction in EX stage (using input registers for next cycle)
+  idex_reg_t idex_reg = pregs_p->idex_preg.inp;
+  exmem_reg_t exmem_reg = pregs_p->exmem_preg.inp;
+  memwb_reg_t memwb_reg = pregs_p->memwb_preg.inp;
   
   // Initialize forwarding signals
   pwires_p->forward_rs1_ex = false;
