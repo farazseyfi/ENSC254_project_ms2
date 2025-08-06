@@ -378,7 +378,7 @@ void gen_forward(pipeline_regs_t* pregs_p, pipeline_wires_t* pwires_p)
     return;
   }
   
-  // Check for EX hazard (forwarding from EXMEM to EX)
+  // Check for EX hazard (forwarding from EXMEM to EX) - HIGHER PRIORITY
   if (exmem_reg.regWrite && exmem_reg.rd != 0) {
     // Check if rs1 needs forwarding
     if (idex_reg.rs1 != 0 && idex_reg.rs1 == exmem_reg.rd && 
@@ -401,11 +401,11 @@ void gen_forward(pipeline_regs_t* pregs_p, pipeline_wires_t* pwires_p)
     }
   }
   
-  // Check for MEM hazard (forwarding from MEMWB to EX)
+  // Check for MEM hazard (forwarding from MEMWB to EX) - LOWER PRIORITY, only if not already forwarded from EX
   if (memwb_reg.regWrite && memwb_reg.rd != 0) {
     // Check if rs1 needs forwarding (and not already forwarded from EX)
     if (idex_reg.rs1 != 0 && idex_reg.rs1 == memwb_reg.rd && 
-        (!exmem_reg.regWrite || exmem_reg.rd != idex_reg.rs1) &&
+        !pwires_p->forward_rs1_ex && // Not already forwarded from EX
         (idex_reg.instr.opcode == 0x33 || idex_reg.instr.opcode == 0x13 || 
          idex_reg.instr.opcode == 0x03 || idex_reg.instr.opcode == 0x23 || 
          idex_reg.instr.opcode == 0x63 || idex_reg.instr.opcode == 0x67)) {
@@ -416,7 +416,7 @@ void gen_forward(pipeline_regs_t* pregs_p, pipeline_wires_t* pwires_p)
     }
     // Check if rs2 needs forwarding (and not already forwarded from EX)
     if (idex_reg.rs2 != 0 && idex_reg.rs2 == memwb_reg.rd && 
-        (!exmem_reg.regWrite || exmem_reg.rd != idex_reg.rs2) &&
+        !pwires_p->forward_rs2_ex && // Not already forwarded from EX
         (idex_reg.instr.opcode == 0x33 || idex_reg.instr.opcode == 0x23 || 
          idex_reg.instr.opcode == 0x63)) {
       printf("[FWD]: Resolving MEM hazard on rs2: x%d\n", idex_reg.rs2);
