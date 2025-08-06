@@ -9,8 +9,8 @@
 //#define MEM_LATENCY 0		// before ms3, we ignore memory access latency
 
 // required for MS2 (test_simulator_ms2.sh)
-// #define DEBUG_REG_TRACE
-// #define DEBUG_CYCLE
+#define DEBUG_REG_TRACE	// prints the register trace
+#define DEBUG_CYCLE	// prints cycle information
 #define PRINT_STATS		// prints overall stats
 #define MEM_LATENCY 0
 
