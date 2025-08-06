@@ -348,6 +348,20 @@ void cycle_pipeline(regfile_t* regfile_p, Byte* memory_p, Cache* cache_p, pipeli
     printf("\n");
   }
   
+  // Print forwarding messages if any forwarding occurred (using signals set earlier)
+  if (pwires_p->forward_rs1_ex) {
+    printf("[FWD]: Resolving EX hazard on rs1: x%d\n", pregs_p->idex_preg.out.rs1);
+  }
+  if (pwires_p->forward_rs2_ex) {
+    printf("[FWD]: Resolving EX hazard on rs2: x%d\n", pregs_p->idex_preg.out.rs2);
+  }
+  if (pwires_p->forward_rs1_mem) {
+    printf("[FWD]: Resolving MEM hazard on rs1: x%d\n", pregs_p->idex_preg.out.rs1);
+  }
+  if (pwires_p->forward_rs2_mem) {
+    printf("[FWD]: Resolving MEM hazard on rs2: x%d\n", pregs_p->idex_preg.out.rs2);
+  }
+  
   printf("[EX ]: Instruction [%08x]@[%08x]: ", 
          pregs_p->exmem_preg.inp.instr.bits, 
          pregs_p->exmem_preg.inp.instr_addr);
