@@ -385,18 +385,18 @@ void gen_forward(pipeline_regs_t* pregs_p, pipeline_wires_t* pwires_p)
         (idex_reg.instr.opcode == 0x33 || idex_reg.instr.opcode == 0x13 || 
          idex_reg.instr.opcode == 0x03 || idex_reg.instr.opcode == 0x23 || 
          idex_reg.instr.opcode == 0x63 || idex_reg.instr.opcode == 0x67)) {
-      printf("[FWD]: Resolving EX hazard on rs1: x%d\n", idex_reg.rs1);
       pwires_p->forward_rs1_ex = true;
       pwires_p->forward_rs1_data = exmem_reg.alu_result;
+      printf("[FWD]: Resolving EX hazard on rs1: x%d\n", idex_reg.rs1);
       fwd_exex_counter++;
     }
     // Check if rs2 needs forwarding
     if (idex_reg.rs2 != 0 && idex_reg.rs2 == exmem_reg.rd && 
         (idex_reg.instr.opcode == 0x33 || idex_reg.instr.opcode == 0x23 || 
          idex_reg.instr.opcode == 0x63)) {
-      printf("[FWD]: Resolving EX hazard on rs2: x%d\n", idex_reg.rs2);
       pwires_p->forward_rs2_ex = true;
       pwires_p->forward_rs2_data = exmem_reg.alu_result;
+      printf("[FWD]: Resolving EX hazard on rs2: x%d\n", idex_reg.rs2);
       fwd_exex_counter++;
     }
   }
@@ -409,9 +409,9 @@ void gen_forward(pipeline_regs_t* pregs_p, pipeline_wires_t* pwires_p)
         (idex_reg.instr.opcode == 0x33 || idex_reg.instr.opcode == 0x13 || 
          idex_reg.instr.opcode == 0x03 || idex_reg.instr.opcode == 0x23 || 
          idex_reg.instr.opcode == 0x63 || idex_reg.instr.opcode == 0x67)) {
-      printf("[FWD]: Resolving MEM hazard on rs1: x%d\n", idex_reg.rs1);
       pwires_p->forward_rs1_mem = true;
       pwires_p->forward_rs1_data = memwb_reg.mem_to_reg ? memwb_reg.mem_data : memwb_reg.alu_result;
+      printf("[FWD]: Resolving MEM hazard on rs1: x%d\n", idex_reg.rs1);
       fwd_exmem_counter++;
     }
     // Check if rs2 needs forwarding (and not already forwarded from EX)
@@ -419,9 +419,9 @@ void gen_forward(pipeline_regs_t* pregs_p, pipeline_wires_t* pwires_p)
         !pwires_p->forward_rs2_ex && // Not already forwarded from EX
         (idex_reg.instr.opcode == 0x33 || idex_reg.instr.opcode == 0x23 || 
          idex_reg.instr.opcode == 0x63)) {
-      printf("[FWD]: Resolving MEM hazard on rs2: x%d\n", idex_reg.rs2);
       pwires_p->forward_rs2_mem = true;
       pwires_p->forward_rs2_data = memwb_reg.mem_to_reg ? memwb_reg.mem_data : memwb_reg.alu_result;
+      printf("[FWD]: Resolving MEM hazard on rs2: x%d\n", idex_reg.rs2);
       fwd_exmem_counter++;
     }
   }
