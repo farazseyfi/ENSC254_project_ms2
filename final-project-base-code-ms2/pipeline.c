@@ -143,7 +143,16 @@ exmem_reg_t stage_execute(idex_reg_t idex_reg, pipeline_wires_t* pwires_p)
   // Handle branch logic - just evaluate the condition, don't take the branch yet
   if (idex_reg.branch) {
     exmem_reg.branch_taken = gen_branch(alu_inp1, alu_inp2, idex_reg.instr);
-    exmem_reg.branch_target = idex_reg.instr_addr + idex_reg.imm;
+    
+    // Calculate branch target based on instruction type
+    if (idex_reg.instr.opcode == 0x67) { // JALR
+      // For JALR: target = rs1 + immediate (immediate is already sign-extended)
+      exmem_reg.branch_target = idex_reg.imm;
+    } else { // JAL or conditional branches
+      // For JAL and branches: target = PC + immediate
+      exmem_reg.branch_target = idex_reg.instr_addr + idex_reg.imm;
+    }
+    
     exmem_reg.is_jalr = (idex_reg.instr.opcode == 0x67);
     exmem_reg.jalr_base = alu_inp1; // Use forwarded value if available
   } else {
@@ -217,8 +226,10 @@ memwb_reg_t stage_mem(exmem_reg_t exmem_reg, pipeline_wires_t* pwires_p, Byte* m
     
     // Calculate target address based on instruction type
     if (exmem_reg.is_jalr) { // JALR
-      pwires_p->pc_src1 = exmem_reg.jalr_base + exmem_reg.branch_target - exmem_reg.instr_addr;
+      // For JALR: target = rs1 + immediate
+      pwires_p->pc_src1 = exmem_reg.jalr_base + exmem_reg.branch_target;
     } else { // JAL or conditional branches
+      // For JAL and branches: target is already calculated as PC + immediate
       pwires_p->pc_src1 = exmem_reg.branch_target;
     }
   } else {
