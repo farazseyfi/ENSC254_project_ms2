@@ -1,3 +1,12 @@
+/* Name : Faraz Seyfi , Niyousha Amin Afshari
+ * Student ID: 301543610, 301465214
+ * Course name: ENSC 254 - Summer 2025
+ * Institution: Simon Fraser University
+ * This file contains solutions for the Data Lab assignment.
+ * Use is permitted only for educational and non-commercial purposes.
+ */
+
+
 #include <stdbool.h>
 #include "cache.h"
 #include "riscv.h"
