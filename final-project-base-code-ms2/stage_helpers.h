@@ -1,3 +1,13 @@
+/* Name : Faraz Seyfi , Niyousha Amin Afshari
+ * Student ID: 301543610, 301465214
+ * Course name: ENSC 254 - Summer 2025
+ * Institution: Simon Fraser University
+ * This file contains solutions for the Data Lab assignment.
+ * Use is permitted only for educational and non-commercial purposes.
+ */
+
+
+
 #ifndef __STAGE_HELPERS_H__
 #define __STAGE_HELPERS_H__
 
